@@ -6,5 +6,6 @@ PORT_NUM = 69420
 
 def main():
     print("Client is running")
+    stop_and_go.main()
 
 main()
