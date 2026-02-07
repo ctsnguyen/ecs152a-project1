@@ -7,7 +7,8 @@ UDP_PORT = 5001
 BUFFER_SIZE = 1024
 SEQ_ID_SIZE = 4
 MESSAGE_SIZE = BUFFER_SIZE - SEQ_ID_SIZE
-DATA = ["Hello World", "John Pork", "Beyond Ultra Smash this project pls"]  # Data Stream
+DATA = ["Hello World", "John Pork", "Beyond Ultra Smash this project pls",
+        "Government Secrets", "Cyberpunk Edgerunners", "Open the Blackwall"]  # Data Stream
 
 
 
@@ -28,15 +29,17 @@ def main():
                 encoded_message = message_sent.encode()
 
                 # Send Data to Server
-                sag_socket.sendto(encoded_message, (UDP_IP, UDP_PORT))
-                print(f"Message: {message_sent} sent at {UDP_IP}:{UDP_PORT}")
+                if sag_socket.sendto(encoded_message, (UDP_IP, UDP_PORT)):
+                    print(f"Message: {message_sent} sent at {UDP_IP}:{UDP_PORT}")
 
                 # Receive Message
                 ack = sag_socket.recv(BUFFER_SIZE)
                 seq_id, message_recv = ack[:SEQ_ID_SIZE], ack[SEQ_ID_SIZE:]
 
                 # Decode seq_id
-                seq_id_decoded = seq_id.decode()
+                # if the message id is -1, we have received all the packets
+                seq_id = int.from_bytes(seq_id, signed=True, byteorder='big')
+
 
                 # Check Sequence ID
                 # if seq_id_decoded == DATA[expected_seq_id] and len(message_recv[seq_id]) > 0:
@@ -44,7 +47,7 @@ def main():
                 #         expected_seq_id += len(DATA[seq_id])
 
                 # Check Sequence ID v2
-                if seq_id_decoded <= DATA[expected_seq_id] and len(message_recv[seq_id]) > 0:
+                if seq_id <= len(DATA[expected_seq_id]) and message_recv[seq_id] > 0:
                     expected_seq_id += 1
 
             except socket.timeout:
