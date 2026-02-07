@@ -1,7 +1,8 @@
 import socket
 
-RECEIVER_PORT = 67
+SENDER_IP = "127.0.0.1"  # Local Host
 SENDER_PORT = 6767
+
 UDP_IP = "0.0.0.0"
 UDP_PORT = 5001
 BUFFER_SIZE = 1024
@@ -16,12 +17,11 @@ def main():
     expected_seq_id = 0
 
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM) as sag_socket:
-        sag_socket.bind(("0.0.0.0", SENDER_PORT))   
-
+        
+        sag_socket.bind((SENDER_IP, SENDER_PORT))   
         print("SAG Sending...")
 
-       
-        while expected_seq_id < len(DATA):
+        while expected_seq_id < len(DATA):  
             time_out = 0
             try:
                 # Create & Enconde Message
@@ -48,6 +48,8 @@ def main():
 
                 # Check Sequence ID v2
                 if seq_id <= len(DATA[expected_seq_id]) and message_recv[seq_id] > 0:
+                    print(f"Acquired Sequence ID: {seq_id}")
+                    print(f"Expected Sequence ID: {expected_seq_id}")
                     expected_seq_id += 1
 
             except socket.timeout:
