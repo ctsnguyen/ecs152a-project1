@@ -18,7 +18,8 @@ def main():
 
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM) as sag_socket:
         
-        sag_socket.bind((SENDER_IP, SENDER_PORT))   
+        sag_socket.bind((SENDER_IP, SENDER_PORT))  
+        sag_socket.settimeout(1.0) 
         print("SAG Sending...")
 
         while expected_seq_id < len(DATA):  
@@ -47,10 +48,14 @@ def main():
                 #         expected_seq_id += len(DATA[seq_id])
 
                 # Check Sequence ID v2
-                if seq_id <= len(DATA[expected_seq_id]) and message_recv[seq_id] > 0:
+                if seq_id == expected_seq_id and message_recv:
                     print(f"Acquired Sequence ID: {seq_id}")
                     print(f"Expected Sequence ID: {expected_seq_id}")
                     expected_seq_id += 1
+                else:
+                    print(f"Ignoring ACK Sequence ID: {seq_id}")
+                    print(f"Expected Sequence ID: {expected_seq_id}")
+                    print(f"Message Received {message_recv}")
 
             except socket.timeout:
                 time_out += 1
