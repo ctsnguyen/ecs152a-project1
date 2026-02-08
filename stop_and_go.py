@@ -18,11 +18,11 @@ def main():
 
     with socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM) as sag_socket:
         
-        sag_socket.bind((SENDER_IP, SENDER_PORT))  
+        sag_socket.bind(("127.0.0.1", SENDER_PORT))  
         sag_socket.settimeout(1.0) 
         print("SAG Sending...")
 
-        while expected_seq_id < len(DATA):  
+        while True:  
             time_out = 0
             try:
                 # Create & Enconde Message
@@ -30,7 +30,7 @@ def main():
                 encoded_message = message_sent.encode()
 
                 # Send Data to Server
-                if sag_socket.sendto(encoded_message, (UDP_IP, UDP_PORT)):
+                if sag_socket.sendto(encoded_message, ("0.0.0.0", UDP_PORT)):
                     print(f"Message: {message_sent} sent at {UDP_IP}:{UDP_PORT}")
 
                 # Receive Message
