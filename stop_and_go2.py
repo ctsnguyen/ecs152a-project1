@@ -17,7 +17,9 @@ DATA = [
     "Beyond Ultra Smash this project pls",
     "Government Secrets",
     "Cyberpunk Edgerunners",
-    "Open the Blackwall"
+    "Open the Blackwall",
+    "john",
+    "==FINACK=="
 ]
 
 def format_packet(seq_id, payload: bytes):
@@ -61,4 +63,5 @@ def main():
             except socket.timeout:
                 print("Timeout — resending packet")
 
-        print("All data sent.")
+        print("All data sent. Closing stop and go socket.")
+        sag_socket.close()
