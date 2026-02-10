@@ -1,5 +1,4 @@
 import socket
-from pydub import AudioSegment 
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -28,19 +27,15 @@ DATA = []
 def format_packet(seq_id, payload: bytes):
     return seq_id.to_bytes(SEQ_ID_SIZE, 'big', signed=True) + payload
 
-def format_int_packet(seq_id, payload: bytes)
+# def format_int_packet(seq_id: int, payload: int) -> bytes:
+#     seq_bytes = seq_id.to_bytes(SEQ_ID_SIZE, 'big', signed=True)
+#     payload_bytes = payload.to_bytes(MESSAGE_SIZE, 'big', signed=False)
+#     return seq_bytes + payload_bytes
 
 def main():
     with open("docker/file.mp3", "rb") as f:
         mp3_bytes = f.read()
-        mp3_size = len(mp3_bytes)\
-        
-    for i in range(mp3_size):
-        DATA.append(mp3_bytes[i])
-    
-    
-
-    
+      
     base = 0          # last acknowledged byte
     data_index = 0
 
@@ -51,12 +46,13 @@ def main():
 
         print("SAG Sending...")
 
-        while data_index < len(DATA):
+        while data_index < len(mp3_bytes):
+            print("Entering Loop")
             # send data in packet to receiver
-            payload = DATA[data_index].encode()
+            payload = bytes(mp3_bytes[data_index:data_index+1])   # .encode()
             packet = format_packet(base, payload)
 
-            print(f"Sending seq={base}, data='{DATA[data_index]}'")
+            print(f"Sending seq={base}, data='{payload[0]}'")
             sag_socket.sendto(packet, (UDP_IP, UDP_PORT))
 
             # receive ACK from receiver
@@ -65,18 +61,22 @@ def main():
                 ack_seq = int.from_bytes(
                     ack[:SEQ_ID_SIZE], byteorder='big', signed=True
                 )
-
+                
                 print(f"ACK received: {ack_seq}")
 
                 # Store new last ack
-                if ack_seq == base + len(payload):
+                if ack_seq == base + 1: # len(payload)
                     base = ack_seq
                     data_index += 1
+                    # print(f"Sending Message: {mp3_bytes[data_index]}")
+                    print("Sent!")
                 else:
                     print("Unexpected ACK, resending...")
 
             except socket.timeout:
                 print("Timeout — resending packet")
-
+        
+        # fin_ack_packet = format_packet(base, "==FINACK==".encode())
+        sag_socket.sendto(format_packet(base, b''), (UDP_IP, UDP_PORT))
         print("All data sent. Closing stop and go socket.")
         sag_socket.close()
