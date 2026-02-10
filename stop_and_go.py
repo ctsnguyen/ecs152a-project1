@@ -11,7 +11,8 @@ MESSAGE_SIZE = BUFFER_SIZE - SEQ_ID_SIZE
 DATA = ["Hello World", "John Pork", "Beyond Ultra Smash this project pls",
         "Government Secrets", "Cyberpunk Edgerunners", "Open the Blackwall"]  # Data Stream
 
-
+def format_packet(seq_id, payload: bytes):
+    return seq_id.to_bytes(SEQ_ID_SIZE, 'big', signed=True) + payload
 
 def main():
     expected_seq_id = 0
@@ -27,10 +28,11 @@ def main():
             try:
                 # Create & Enconde Message
                 message_sent = DATA[expected_seq_id] # Encoded data-string into bits 
-                encoded_message = message_sent.encode()
+                payload = message_sent.encode()
+                packet = format_packet(expected_seq_id, payload)
 
                 # Send Data to Server
-                if sag_socket.sendto(encoded_message, ("0.0.0.0", UDP_PORT)):
+                if sag_socket.sendto(packet, ("0.0.0.0", UDP_PORT)):
                     print(f"Message: {message_sent} sent at {UDP_IP}:{UDP_PORT}")
 
                 # Receive Message

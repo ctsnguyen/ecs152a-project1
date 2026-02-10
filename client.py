@@ -1,4 +1,5 @@
 import stop_and_go
+import stop_and_go2
 import fixed_slide_win_pro
 import tcp_reno
 
@@ -10,7 +11,7 @@ def main():
     
     print("Client is running")
     if STOP_AND_GO:
-        stop_and_go.main()
+        stop_and_go2.main()
     if FIXED_SLIDE_WIN_PRO:
         pass
     if TCP_RENO:
