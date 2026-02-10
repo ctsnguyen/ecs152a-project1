@@ -1,4 +1,5 @@
 import socket
+from pydub import AudioSegment 
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -10,7 +11,7 @@ BUFFER_SIZE = 1024
 SEQ_ID_SIZE = 4
 MESSAGE_SIZE = BUFFER_SIZE - SEQ_ID_SIZE
 
-DATA = [
+TEST_DATA = [
     "Hello World",
     "John Pork",
     "Beyond Ultra Smash this project pls",
@@ -21,10 +22,25 @@ DATA = [
     "==FINACK=="
 ]
 
+
+DATA = []
+
 def format_packet(seq_id, payload: bytes):
     return seq_id.to_bytes(SEQ_ID_SIZE, 'big', signed=True) + payload
 
+def format_int_packet(seq_id, payload: bytes)
+
 def main():
+    with open("docker/file.mp3", "rb") as f:
+        mp3_bytes = f.read()
+        mp3_size = len(mp3_bytes)\
+        
+    for i in range(mp3_size):
+        DATA.append(mp3_bytes[i])
+    
+    
+
+    
     base = 0          # last acknowledged byte
     data_index = 0
 
