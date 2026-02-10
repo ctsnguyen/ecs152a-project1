@@ -1,5 +1,4 @@
 import socket
-import time
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
