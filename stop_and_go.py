@@ -35,6 +35,9 @@ def format_packet(seq_id, payload: bytes):
 def main():
     with open("docker/file.mp3", "rb") as f:
         mp3_bytes = f.read()
+    
+    # limiting the bytes for debugging
+    mp3_bytes = mp3_bytes[:80000]
       
     base = 0          # last acknowledged byte
     data_index = 0
@@ -77,6 +80,6 @@ def main():
                 print("Timeout — resending packet")
         
         # fin_ack_packet = format_packet(base, "==FINACK==".encode())
-        sag_socket.sendto(format_packet(base, b''), (UDP_IP, UDP_PORT))
+        sag_socket.sendto(format_packet(base, b'==FINACK=='), (UDP_IP, UDP_PORT))
         print("All data sent. Closing stop and go socket.")
         sag_socket.close()
