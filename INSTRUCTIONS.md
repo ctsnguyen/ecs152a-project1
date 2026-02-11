@@ -21,4 +21,7 @@ are the same.
 We do this by checking if the lengths are the same, then checking
 whether the individual items at each index are the same.
 
+# Some issues we ran into
+Depending on the wifi or the hardware sending the files using
+stop_and_go.py takes pretty long. 
 
