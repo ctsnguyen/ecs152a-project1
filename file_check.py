@@ -6,8 +6,10 @@ with open("docker/file.mp3", "rb") as f:
 with open("docker/hdd/file2.mp3", "rb") as f:
         mp3_bytes_new = f.read()
 
-if len(mp3_bytes_orig) == len(mp3_bytes_orig):
+if len(mp3_bytes_orig) == len(mp3_bytes_new):
     print("Both files are the same length!")
+else:
+    print("Files don't match :(")
 
 i = 0
 print("Checking if files match...")
