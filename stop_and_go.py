@@ -1,5 +1,6 @@
 import socket
 import time 
+import pandas as pd
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -94,5 +95,5 @@ def main():
         print("All data sent. Closing stop and go socket.")
         sag_socket.close()
         print(f"Throughput Time: {(throughput_timer_start - throughput_timer_end):.4f}")
-        
-        print(f"Average Delay per Packet Time: {}")
+        dpp_avg = pd.mean(dpp_list)
+        print(f"Average Delay per Packet Time: {dpp_avg}")
