@@ -1,4 +1,5 @@
 import socket
+import time 
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -32,6 +33,7 @@ def format_packet(seq_id, payload: bytes):
 #     payload_bytes = payload.to_bytes(MESSAGE_SIZE, 'big', signed=False)
 #     return seq_bytes + payload_bytes
 
+
 def main():
     with open("docker/file.mp3", "rb") as f:
         mp3_bytes = f.read()
@@ -41,9 +43,11 @@ def main():
       
     base = 0          # last acknowledged byte
     data_index = 0
-
+    dpp_list = []
     # initialize sender's socker
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sag_socket:
+        # Start Throughput Measurement Here
+        throughput_timer_start = time.perf_counter()
         sag_socket.bind((SENDER_IP, SENDER_PORT))
         sag_socket.settimeout(1.0)
 
@@ -57,6 +61,8 @@ def main():
 
             print(f"Sending seq={base}, data='{payload[0]}'")
             sag_socket.sendto(packet, (UDP_IP, UDP_PORT))
+            # Delay Per Packet Timer Starts Here
+            dpp_timer_start = time.perf_counter()
 
             # receive ACK from receiver
             try:
@@ -65,7 +71,11 @@ def main():
                     ack[:SEQ_ID_SIZE], byteorder='big', signed=True
                 )
                 
+                # Received ACK, stop timer
+                dpp_timer_end = time.perf_counter()
                 print(f"ACK received: {ack_seq}")
+                print(f"Delay Per Packet Time: {(dpp_timer_start - dpp_timer_end):.4f}")
+                dpp_list.append(dpp_timer_start - dpp_timer_end)
 
                 # Store new last ack
                 if ack_seq == base + 1: # len(payload)
@@ -79,7 +89,10 @@ def main():
             except socket.timeout:
                 print("Timeout — resending packet")
         
-        # fin_ack_packet = format_packet(base, "==FINACK==".encode())
+        throughput_timer_end = time.perf_counter()
         sag_socket.sendto(format_packet(base, b'==FINACK=='), (UDP_IP, UDP_PORT))
         print("All data sent. Closing stop and go socket.")
         sag_socket.close()
+        print(f"Throughput Time: {(throughput_timer_start - throughput_timer_end):.4f}")
+        
+        print(f"Average Delay per Packet Time: {}")

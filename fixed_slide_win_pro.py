@@ -1,4 +1,5 @@
 import socket
+import time
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -10,7 +11,7 @@ BUFFER_SIZE = 1024
 SEQ_ID_SIZE = 4
 MESSAGE_SIZE = BUFFER_SIZE - SEQ_ID_SIZE
 
-DATA = [
+TEST_DATA = [
     "Hello World",
     "John Pork",
     "Beyond Ultra Smash this project pls",
@@ -24,6 +25,12 @@ def format_packet(seq_id, payload: bytes):
     return seq_id.to_bytes(SEQ_ID_SIZE, 'big', signed=True) + payload
 
 def main():
+    with open("docker/file.mp3", "rb") as f:
+        mp3_bytes = f.read()
+    
+    # limiting the bytes for debugging
+    # mp3_bytes = mp3_bytes[:80000]
+    
     base = 0          # last acknowledged byte
     data_index = 0
 
@@ -34,12 +41,12 @@ def main():
 
         print("SAG Sending...")
 
-        while data_index < len(DATA):
+        while data_index < len(mp3_bytes):
             # send data in packet to receiver
-            payload = DATA[data_index].encode()
+            payload = bytes(mp3_bytes[data_index:data_index+1])   # .encode()
             packet = format_packet(base, payload)
 
-            print(f"Sending seq={base}, data='{DATA[data_index]}'")
+            print(f"Sending seq={base}, data='{payload[data_index]}'")
             sag_socket.sendto(packet, (UDP_IP, UDP_PORT))
 
             # receive ACK from receiver
