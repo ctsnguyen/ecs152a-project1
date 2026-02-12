@@ -9,10 +9,15 @@ or
 python client.py
 ```
 
-In client.py there are 3 macro booleans that you can adjust to
-use the different protocols.
-
+You can also use command line arguments to run the desired protocol
+```
+python3 client.py [tcp_reno | stop_and_go | fixed_slide_win]
+```
 * You could also just run the files itself if it's easier
+
+If you decide to use client.py and run it without any command line arguments
+you will just run the protocol that currently has the true value for it's macro
+* For example STOP_AND_GO = True by default so it will run that
 
 ## File checking
 file_check.py checks if the input and output mp3 files
