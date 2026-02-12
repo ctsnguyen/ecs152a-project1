@@ -1,5 +1,5 @@
 import socket
-import time
+import time 
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -18,11 +18,19 @@ TEST_DATA = [
     "Government Secrets",
     "Cyberpunk Edgerunners",
     "Open the Blackwall",
-    "EOT"
+    "john",
+    "==FINACK=="
 ]
+
+
+DATA = []
+
+WINDOW_SIZE = 100
+
 
 def format_packet(seq_id, payload: bytes):
     return seq_id.to_bytes(SEQ_ID_SIZE, 'big', signed=True) + payload
+
 
 def main():
     with open("docker/file.mp3", "rb") as f:
@@ -30,24 +38,34 @@ def main():
     
     # limiting the bytes for debugging
     # mp3_bytes = mp3_bytes[:80000]
-    
+      
     base = 0          # last acknowledged byte
     data_index = 0
-
+    # dpp_list = []
     # initialize sender's socker
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sag_socket:
+        # Start Throughput Measurement Here
+        throughput_timer_start = time.perf_counter()
         sag_socket.bind((SENDER_IP, SENDER_PORT))
         sag_socket.settimeout(1.0)
 
         print("SAG Sending...")
 
-        while data_index < len(mp3_bytes):
-            # send data in packet to receiver
-            payload = bytes(mp3_bytes[data_index:data_index+1])   # .encode()
-            packet = format_packet(base, payload)
+        while base < len(mp3_bytes):
+            print("Entering Loop")
 
-            print(f"Sending seq={base}, data='{payload[data_index]}'")
-            sag_socket.sendto(packet, (UDP_IP, UDP_PORT))
+            while data_index < len(mp3_bytes) and data_index < base + WINDOW_SIZE:
+                # send data in packet to receiver
+                payload = bytes(mp3_bytes[data_index:data_index+1])
+                packet = format_packet(data_index, payload)
+
+                print(f"Sending seq={base}, data='{payload[0]}'")
+                sag_socket.sendto(packet, (UDP_IP, UDP_PORT))
+
+                data_index += 1
+
+            # Delay Per Packet Timer Starts Here
+            # dpp_timer_start = time.perf_counter()
 
             # receive ACK from receiver
             try:
@@ -55,18 +73,32 @@ def main():
                 ack_seq = int.from_bytes(
                     ack[:SEQ_ID_SIZE], byteorder='big', signed=True
                 )
+                
+                # Received ACK, stop timer
+                # dpp_timer_end = time.perf_counter()
 
                 print(f"ACK received: {ack_seq}")
 
-                # Store new last ack
-                if ack_seq == base + len(payload):
+                # print(f"Delay Per Packet Time: {(dpp_timer_start - dpp_timer_end):.4f}")
+                # dpp_list.append(dpp_timer_start - dpp_timer_end)
+
+                # Move window forward
+                if ack_seq > base: # len(payload)
                     base = ack_seq
-                    data_index += 1
-                else:
-                    print("Unexpected ACK, resending...")
+                    # print(f"Sending Message: {mp3_bytes[data_index]}")
+                    print("Window moved forward!")
 
             except socket.timeout:
                 print("Timeout — resending packet")
 
-        print("All data sent.")
+                # Resent all packets in window
+                for i in range(base, data_index):
+                    payload = bytes(mp3_bytes[i:i+1])
+                    packet = format_packet(i, payload)
+                    sag_socket.sendto(packet, (UDP_IP, UDP_PORT))
         
+        throughput_timer_end = time.perf_counter()
+        sag_socket.sendto(format_packet(base, b'==FINACK=='), (UDP_IP, UDP_PORT))
+        print("All data sent. Closing stop and go socket.")
+        sag_socket.close()
+        print(f"Throughput Time: {(throughput_timer_start - throughput_timer_end):.4f}")
