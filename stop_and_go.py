@@ -95,4 +95,3 @@ def main():
         sag_socket.close()
         print(f"Throughput Time: {(throughput_timer_start - throughput_timer_end):.4f}")
         
-        print(f"Average Delay per Packet Time: {}")
