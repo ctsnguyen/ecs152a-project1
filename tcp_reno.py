@@ -7,8 +7,8 @@ class TCP_Reno:
 
     def __init__(self, sender_ip="127.0.0.1", sender_port=6767, 
                 receiver_ip="127.0.0.1", receiver_port=5001, 
-                file_loc="docker/file.mp3", init_cwnd=1,
-                init_ssthresh=64, timeout_set=1):
+                file_loc="docker/file.mp3", init_cwnd=1.0,
+                init_ssthresh=64, timeout_set=1.0):
         
         # Networking
         self.sender_ip = sender_ip
@@ -47,119 +47,153 @@ class TCP_Reno:
     
     def SendData(self) -> None:
         payload = self.data[self.next_seq:self.next_seq+1]   # .encode()
-        packet = self.FormatPacket(self.base, payload)
+        packet = self.FormatPacket(self.next_seq, payload)
         if not payload:
             return
-        print(f"Sending seq={self.base}, data='{payload[0]}'")
+        print(f"Sending seq={self.next_seq}, data='{payload[0]}'")
         self.sock.sendto(packet, (self.receiver_ip, self.receiver_port))
         self.next_seq += 1
 
         return 
 
-    def RecvAck(self) -> tuple[int, int]:
+    def RecvAck(self) -> int:
         
         ack = self.sock.recv(self.BUFFER_SIZE)
         ack_seq = int.from_bytes(
             ack[:self.SEQ_ID_SIZE], byteorder='big', signed=True
         )
-    
-        last_recv_ack = -1
-        # if ack_seq received
-        # Might need to add some logic for cwnd?
-        if ack_seq == self.base + 1:     
-            # Sequence and Data
-            self.base = ack_seq
-            self.data_index += 1
-            print(f"Recived ACK {ack_seq}")
-                
-            # cwnd incrementation
-            self.cwnd += 1
-            in_flight -= 1
 
-            # count for duplicate acks
-
-            
-        else:
-            print(f"Expected ACK: {self.base + 1}, Received ACK: {ack_seq}, Resending...")
-        
         return ack_seq
+    
     
     def SlowStart(self) -> str:
         # Gradually Increase cwnd until timeout
-        self.last_ack = -1
-        self.duplicate_acks = 0
-        while self.cwnd < self.ssthresh:  # Negation of cwnd >= ssthresh cool right
-            while (self.next_seq - self.base) < int(self.cwnd) and self.data_index != len(self.data):
-                self.SendData()
+        # while self.cwnd < self.ssthresh:  # Negation of cwnd >= ssthresh cool right
+        while (self.next_seq - self.base) < int(self.cwnd) and self.data_index != len(self.data):
+            self.SendData()
                 
             
-            try: 
-                cur_ack = self.RecvAck(self.cwnd)     
+        try: 
+            ack_seq = self.RecvAck()
+
+            if ack_seq > self.base:
+                self.base = ack_seq
+                self.data_index = self.base
+                self.dup_ack_count = 0
+
+                # Slow Start growth
+                self.cwnd += 1.0
+
+                if self.cwnd >= self.ssthresh:
+                    return "AIMD"        
+                return "Slow Start" 
+                    
+            if ack_seq == self.base:
+                self.dup_ack_count += 1
                 
-                if cur_ack == self.last_ack:
-                    self.duplicate_acks += 1
-                self.last_ack = cur_ack
 
-                if self.duplicate_acks == 3:
-                    self.ssthresh // 2
-                    self.cwnd = self.ssthresh + 3 # Plus 3 ACKS
-                    return "Recovery"
+                if self.dup_ack_count == 3:
+                    # self.ssthresh // 2
+                    # self.cwnd = self.ssthresh + 3 # Plus 3 ACKS
+                    return "Retransmit"
+            return "Slow Start"
 
-            except socket.timeout:
-                # FastRetransmit() 
-                self.ssthresh = self.cwnd / 2
-                self.cwnd = 1
-                # in_flight = 0
-                return "Slow Start" # FastRetransmit() Can happen here?
+        except socket.timeout:
+            # FastRetransmit() 
+            self.ssthresh = max(int(self.cwnd // 2), 2)
+            self.cwnd = 1.0
+            self.next_seq = self.base
+            self.dup_ack_count = 0
+            # in_flight = 0
+            return "Slow Start" # FastRetransmit() Can happen here?
             
         # Exit Slow Start and go to AIMD
         return "AIMD" # Can be here too
     
     def AIMD(self) -> str:
-        # this is the Congestion Control
-        # Increase Constant = 1, Decrease Constant = 2
-        # On arrival of every ACK, increment the cwnd by (1 / cwnd)
-        # and send new segment in the network
-
-        # We know how much packets are in flight based on:
-        # in_flight = self.next_seq - self.base
-
-        while (self.next_seq - self.base) < self.cwnd:            
-            # Increase sending rate by a constant
-            # Decrease sending rate by a linear factor
+        # Fill window
+        while self.next_seq < self.base + int(self.cwnd) and self.next_seq < len(self.data):
             self.SendData()
-            self.cwnd += 1
 
-            try: 
-                cur_ack, in_flight = self.RecvAck(self.cwnd, in_flight)     
-                
-                if cur_ack == self.last_ack:
-                    self.duplicate_acks += 1
-                self.last_ack = cur_ack
+        try:
+            ack_seq = self.RecvAck()
 
-                if self.duplicate_acks == 3:
-                    self.ssthresh // 2
-                    self.cwnd = self.ssthresh + 3 # Plus 3 ACKS
-                    return "Recovery"
-                 
-            except socket.timeout:
-                # FastRetransmit() 
-                self.ssthresh = self.cwnd / 2
-                self.cwnd = 1
-                # in_flight = 0
-                return "Slow Start"
-            
-        return ""
+
+            if ack_seq > self.base:
+                self.base = ack_seq
+                # self.data_index = self.base
+                self.dup_ack_count = 0
+
+                # AIMD additive increase
+                self.cwnd += 1.0 / self.cwnd
+                return "AIMD"
+
+            # Duplicate Found
+            if ack_seq == self.base:
+                self.dup_ack_count += 1
+                if self.dup_ack_count == 3:
+                    return "Retransmit"
+                return "AIMD"
+
+            return "AIMD"
+
+        except socket.timeout:
+            self.ssthresh = max(int(self.cwnd // 2), 2)
+            self.cwnd = 1.0
+            self.next_seq = self.base
+            self.dup_ack_count = 0
+            return "Slow Start"
+
+
 
     def FastRetransmit(self) -> str:
-        # Get 3 Duplicate ACKs to Indicate Loss
-        
-        pass
+        self.ssthresh = max(int(self.cwnd // 2), 2)
+        self.cwnd = float(self.ssthresh + 3) # Duplicates
+        self.dup_ack_count = 0
+
+        payload = self.data[self.base:self.base+1]
+        if payload:
+            packet = self.FormatPacket(self.base, payload)
+            print(f"Fast retransmit seq={self.base}")
+            self.sock.sendto(packet, (self.receiver_ip, self.receiver_port))
+
+        return "Recovery"
 
     def FastRecovery(self) -> str:
-        # If acks coming through no need for slow start
-        # Increment cwnd by 1 for each ACK
-        pass
+        # In Recovery, cwnd is inflated (ssthresh + 3).
+        # We stay here until we get a NEW ACK that advances base.
+
+        try:
+            ack_seq = self.RecvAck()
+
+            if ack_seq > self.base:
+                self.base = ack_seq
+                self.data_index = self.base  
+                self.dup_ack_count = 0
+
+                self.cwnd = float(self.ssthresh)
+                return "AIMD"
+
+            # Duplicate Acts then go into that recovery
+            elif ack_seq == self.base:
+                self.dup_ack_count += 1
+                self.cwnd += 1.0
+
+                while self.next_seq < self.base + int(self.cwnd) and self.next_seq < len(self.data):
+                    self.SendData()
+
+                return "Recovery"
+            
+            return "Recovery"
+
+        except socket.timeout:
+            # if Timeout then Slow Start
+            self.ssthresh = max(int(self.cwnd // 2), 2)
+            self.cwnd = 1.0
+            self.next_seq = self.base
+            self.dup_ack_count = 0
+            return "Slow Start"
+
 
     def Run(self) -> None:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -169,10 +203,10 @@ class TCP_Reno:
 
             valid_states = {"Slow Start", "AIMD", "Recovery", "Retransmit"}
 
-            while self.state in valid_states and self.data_index < len(self.data):
+            while self.state in valid_states and self.base < len(self.data):
                 if self.state == "Slow Start":
                     self.state = self.SlowStart()
-                elif self.state == "AIMD":
+                elif self.state == "AIMD":  
                     self.state = self.AIMD()
                 elif self.state == "Recovery":
                     self.state = self.FastRecovery()

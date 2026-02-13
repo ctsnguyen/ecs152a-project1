@@ -40,7 +40,7 @@ def main():
         mp3_bytes = f.read()
     
     # limiting the bytes for debugging
-    # mp3_bytes = mp3_bytes[:80000]
+    # mp3_bytes = mp3_bytes[:1000000]
       
     base = 0          # last acknowledged byte
     data_index = 0
