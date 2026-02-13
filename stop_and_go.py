@@ -1,6 +1,6 @@
 import socket
 import time 
-import pandas as pd
+import numpy as np
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -75,7 +75,7 @@ def main():
                 # Received ACK, stop timer
                 dpp_timer_end = time.perf_counter()
                 print(f"ACK received: {ack_seq}")
-                print(f"Delay Per Packet Time: {(dpp_timer_start - dpp_timer_end):.4f}")
+                print(f"Delay Per Packet Time: {(dpp_timer_end - dpp_timer_start):.7f}")
                 dpp_list.append(dpp_timer_start - dpp_timer_end)
 
                 # Store new last ack
@@ -94,6 +94,6 @@ def main():
         sag_socket.sendto(format_packet(base, b'==FINACK=='), (UDP_IP, UDP_PORT))
         print("All data sent. Closing stop and go socket.")
         sag_socket.close()
-        print(f"Throughput Time: {(throughput_timer_start - throughput_timer_end):.4f}")
-        dpp_avg = pd.mean(dpp_list)
-        print(f"Average Delay per Packet Time: {dpp_avg}")
+        print(f"Throughput Time: {(throughput_timer_end - throughput_timer_start):.7f}")
+        dpp_avg = np.mean(dpp_list)
+        print(f"Average Delay per Packet Time: {dpp_avg:.7f}")

@@ -1,6 +1,6 @@
 import stop_and_go
 import fixed_slide_win_pro
-import tcp_reno
+#   import tcp_reno
 import sys
 
 command = ""

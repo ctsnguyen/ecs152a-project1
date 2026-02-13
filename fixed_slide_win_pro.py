@@ -1,5 +1,6 @@
 import socket
 import time 
+import numpy as np
 
 SENDER_IP = "127.0.0.1"
 SENDER_PORT = 6767
@@ -38,16 +39,17 @@ def main():
     
     # limiting the bytes for debugging
     # mp3_bytes = mp3_bytes[:80000]
-      
+
+ 
     base = 0          # last acknowledged byte
     data_index = 0
-    # dpp_list = []
+    dpp_list = []
     # initialize sender's socker
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sag_socket:
         # Start Throughput Measurement Here
         throughput_timer_start = time.perf_counter()
         sag_socket.bind((SENDER_IP, SENDER_PORT))
-        sag_socket.settimeout(1.0)
+        sag_socket.settimeout(3.0)
 
         print("SAG Sending...")
 
@@ -65,7 +67,7 @@ def main():
                 data_index += 1
 
             # Delay Per Packet Timer Starts Here
-            # dpp_timer_start = time.perf_counter()
+            dpp_timer_start = time.perf_counter()
 
             # receive ACK from receiver
             try:
@@ -75,12 +77,12 @@ def main():
                 )
                 
                 # Received ACK, stop timer
-                # dpp_timer_end = time.perf_counter()
+                dpp_timer_end = time.perf_counter()
 
                 print(f"ACK received: {ack_seq}")
 
-                # print(f"Delay Per Packet Time: {(dpp_timer_start - dpp_timer_end):.4f}")
-                # dpp_list.append(dpp_timer_start - dpp_timer_end)
+                print(f"Delay Per Packet Time: {(dpp_timer_end - dpp_timer_start):.7f}")
+                dpp_list.append(dpp_timer_end - dpp_timer_start)
 
                 # Move window forward
                 if ack_seq > base: # len(payload)
@@ -101,4 +103,6 @@ def main():
         sag_socket.sendto(format_packet(base, b'==FINACK=='), (UDP_IP, UDP_PORT))
         print("All data sent. Closing stop and go socket.")
         sag_socket.close()
-        print(f"Throughput Time: {(throughput_timer_start - throughput_timer_end):.4f}")
+        print(f"Throughput Time: {(throughput_timer_end - throughput_timer_start):.7f}")
+        dpp_avg = np.mean(dpp_list)
+        print(f"Average Delay per Packet Time: {dpp_avg:.7f}")
