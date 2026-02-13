@@ -1,6 +1,6 @@
-import stop_and_go
-import fixed_slide_win_pro
-import tcp_reno
+import sender_stop_and_wait_CoreyNguyen_922355176_ChotrawitBenko_921818177
+import sender_fixed_sliding_window_CoreyNguyen_922355176_ChotrawitBenko_921818177
+import sender_reno_CoreyNguyen_922355176_ChotrawitBenko_921818177
 import sys
 
 command = ""
@@ -43,13 +43,13 @@ def main():
     print("Starting Client...")
     if STOP_AND_GO:
         print("Intiating Stop and Go ARQ")
-        stop_and_go.main()
+        sender_stop_and_wait_CoreyNguyen_922355176_ChotrawitBenko_921818177.main()
     if FIXED_SLIDE_WIN_PRO:
         print("Initiating Fixed Slide Window Protocol...")
-        fixed_slide_win_pro.main()
+        sender_fixed_sliding_window_CoreyNguyen_922355176_ChotrawitBenko_921818177.main()
     if TCP_RENO:
         print("TCP RENO not implemented yet :(")
-        sender = tcp_reno.TCP_Reno()
+        sender = sender_reno_CoreyNguyen_922355176_ChotrawitBenko_921818177.TCP_Reno()
         sender.Run()
     if (TCP_RENO == False and STOP_AND_GO == False
         and FIXED_SLIDE_WIN_PRO == False):
