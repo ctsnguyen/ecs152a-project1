@@ -101,7 +101,7 @@ def main():
         
         throughput_timer_end = time.perf_counter()
         sag_socket.sendto(format_packet(base, b'==FINACK=='), (UDP_IP, UDP_PORT))
-        print("All data sent. Closing stop and go socket.")
+        print("All data sent. Closing sliding window socket.")
         sag_socket.close()
         print(f"Throughput Time: {(throughput_timer_end - throughput_timer_start):.7f}")
         dpp_avg = np.mean(dpp_list)
