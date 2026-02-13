@@ -1,6 +1,6 @@
 import stop_and_go
 import fixed_slide_win_pro
-# import tcp_reno
+import tcp_reno
 import sys
 
 command = ""
@@ -49,7 +49,7 @@ def main():
         fixed_slide_win_pro.main()
     if TCP_RENO:
         print("TCP RENO not implemented yet :(")
-        sender = TCP_RENO()
+        sender = tcp_reno.TCP_Reno()
         sender.Run()
     if (TCP_RENO == False and STOP_AND_GO == False
         and FIXED_SLIDE_WIN_PRO == False):

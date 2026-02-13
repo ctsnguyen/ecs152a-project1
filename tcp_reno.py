@@ -1,5 +1,6 @@
 import socket
 import time
+import numpy as np
 
 class TCP_Reno:
     BUFFER_SIZE = 1024
@@ -9,6 +10,10 @@ class TCP_Reno:
                 receiver_ip="127.0.0.1", receiver_port=5001, 
                 file_loc="docker/file.mp3", init_cwnd=1.0,
                 init_ssthresh=64, timeout_set=1.0):
+        
+        # Metrics
+        self.dpp_list = []
+        self.throughput_timer_start = None
         
         # Networking
         self.sender_ip = sender_ip
@@ -43,6 +48,10 @@ class TCP_Reno:
     def RetrieveData(self, file : str) -> list:
         with open(file, "rb") as f:
             mp3_bytes = f.read()
+
+        # byte send limit for debugging
+        # mp3_bytes = mp3_bytes[:8000]
+
         return mp3_bytes
     
     def SendData(self) -> None:
@@ -57,8 +66,16 @@ class TCP_Reno:
         return 
 
     def RecvAck(self) -> int:
-        
+        # Start Delay Per Packet timer
+        dpp_timer_start = time.perf_counter()
+
         ack = self.sock.recv(self.BUFFER_SIZE)
+
+        # Stop timer after ACK received
+        dpp_timer_end = time.perf_counter()
+        delay = dpp_timer_end - dpp_timer_start
+        self.dpp_list.append(delay)
+
         ack_seq = int.from_bytes(
             ack[:self.SEQ_ID_SIZE], byteorder='big', signed=True
         )
@@ -201,6 +218,9 @@ class TCP_Reno:
             self.sock.bind((self.sender_ip, self.sender_port))
             self.sock.settimeout(self.timeout_set)
 
+            # Start Throughput Timer
+            self.throughput_timer_start = time.perf_counter()
+
             valid_states = {"Slow Start", "AIMD", "Recovery", "Retransmit"}
 
             while self.state in valid_states and self.base < len(self.data):
@@ -215,10 +235,22 @@ class TCP_Reno:
                 else:
                     break
 
+            # Stop Throughput Timer
+            throughput_timer_end = time.perf_counter()
             
             fin_payload = b"==FINACK=="
             self.sock.sendto(self.FormatPacket(self.base, fin_payload), 
                              (self.receiver_ip, self.receiver_port))
+
+            print("All data sent. Closing TCP Reno socket.")
+
+            total_time = throughput_timer_end - self.throughput_timer_start
+            print(f"Throughput Time: {total_time:.7f}")
+
+            if self.dpp_list:
+                dpp_avg = np.mean(self.dpp_list)
+                print(f"Average Delay per Packet Time: {dpp_avg:.7f}")
+
             self.sock.close()
 
 
