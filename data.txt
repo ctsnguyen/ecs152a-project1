@@ -1,0 +1,170 @@
+Stop and Go 1:
+All data sent. Closing stop and go socket.
+Throughput Time: 976.2289256
+Average Delay per Packet Time: 0.0001163
+
+Stop and Go 2:
+All data sent. Closing stop and go socket.
+Throughput Time: 898.4546034
+Average Delay per Packet Time: 0.0001065
+
+Stop and Go 3:
+All data sent. Closing stop and go socket.
+Throughput Time: 897.3800841
+Average Delay per Packet Time: 0.0001060
+
+Stop and Go 4:
+All data sent. Closing stop and go socket.
+Throughput Time: 2989.5605436
+Average Delay per Packet Time: 0.0004062
+
+Stop and Go 5:
+All data sent. Closing stop and go socket.
+Throughput Time: 3415.9276185
+Average Delay per Packet Time: 0.0004694
+
+Stop and Go 6: At size = 100000
+All data sent. Closing stop and go socket.
+Throughput Time: 80.0329943
+Average Delay per Packet Time: 0.0005974
+
+Stop and Go 7: At Size = 1,000,000
+All data sent. Closing stop and go socket.
+Throughput Time: 689.2275787
+Average Delay per Packet Time: 0.0005170
+
+Stop and Go 8: At Size = 1,000,000
+All data sent. Closing stop and go socket.
+Throughput Time: 689.2275787
+Average Delay per Packet Time: 0.0005170
+
+Stop and Go 9: At Size = 1,000,000
+All data sent. Closing stop and go socket.
+Throughput Time: 764.8603535
+Average Delay per Packet Time: 0.0005660
+
+Stop and Go 10: At Size FULL
+All data sent. Closing stop and go socket.
+Throughput Time: 3079.4674663
+Average Delay per Packet Time: 0.0004308
+
+Stop and Go 11: At Size FULL
+All data sent. Closing stop and go socket.
+Throughput Time: 999.2038117
+Average Delay per Packet Time: 0.0001226
+
+Stop and Go 12: At Size FULL
+All data sent. Closing stop and go socket.
+Throughput Time: 1363.9299468
+Average Delay per Packet Time: 0.0001730    
+
+Stopa nd Go 13: At Size FULL
+All data sent. Closing stop and go socket.
+Throughput Time: 1269.9813789
+Average Delay per Packet Time: 0.0001592
+
+Stop and Go 14: At Size FULL
+All data sent. Closing stop and go socket.
+Throughput Time: 1167.7144456
+Average Delay per Packet Time: 0.0001468
+
+
+Sliding Window 1: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 243.5333316
+Average Delay per Packet Time: 0.0000032
+
+Sliding Window 2: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 246.3061623
+Average Delay per Packet Time: 0.0000034
+
+Sliding Window 3: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 263.3162957
+Average Delay per Packet Time: 0.0000040
+
+Sliding Window 4: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 255.9410661
+Average Delay per Packet Time: 0.0000036
+
+Sliding Window 5: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 247.8576806
+Average Delay per Packet Time: 0.0000033
+
+SLiding Window 6: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 249.3534233
+Average Delay per Packet Time: 0.0000033
+
+Sliding Window 7: At Size FULL
+All data sent. Closing sliding window socket.
+Throughput Time: 249.9904310
+Average Delay per Packet Time: 0.0000033
+
+Sliding Window 8:
+All data sent. Closing sliding window socket.
+Throughput Time: 240.5629946
+Average Delay per Packet Time: 0.0000032
+
+Sliding Window 9:
+All data sent. Closing sliding window socket.
+Throughput Time: 234.4636782
+Average Delay per Packet Time: 0.0000031
+
+Sliding Window 10:
+All data sent. Closing sliding window socket.
+Throughput Time: 234.7666142
+Average Delay per Packet Time: 0.0000031
+
+TCP Reno 1:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 155.4814200
+Average Delay per Packet Time: 0.0000025
+
+TCP Reno 2:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 151.9500517
+Average Delay per Packet Time: 0.0000025
+
+TCP Reno 3:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 153.1534956
+Average Delay per Packet Time: 0.0000025
+
+TCP Reno 4:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 180.4113273
+Average Delay per Packet Time: 0.0000023
+
+TCP Reno 5:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 167.0626662
+Average Delay per Packet Time: 0.0000023
+
+TCP Reno 6:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 151.4944313
+Average Delay per Packet Time: 0.0000022
+
+TCP Reno 7:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 185.4618062
+Average Delay per Packet Time: 0.0000022
+
+TCP Reno 8:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 151.2768493
+Average Delay per Packet Time: 0.0000026
+
+TCP Reno 9:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 151.3503000
+Average Delay per Packet Time: 0.0000026
+
+TCP Reno 10:
+All data sent. Closing TCP Reno socket.
+Throughput Time: 163.5129322
+Average Delay per Packet Time: 0.0000025
