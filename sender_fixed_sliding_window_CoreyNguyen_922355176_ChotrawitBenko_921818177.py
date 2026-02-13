@@ -106,3 +106,5 @@ def main():
         print(f"Throughput Time: {(throughput_timer_end - throughput_timer_start):.7f}")
         dpp_avg = np.mean(dpp_list)
         print(f"Average Delay per Packet Time: {dpp_avg:.7f}")
+
+main()
