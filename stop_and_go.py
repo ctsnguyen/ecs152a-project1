@@ -76,7 +76,7 @@ def main():
                 dpp_timer_end = time.perf_counter()
                 print(f"ACK received: {ack_seq}")
                 print(f"Delay Per Packet Time: {(dpp_timer_end - dpp_timer_start):.7f}")
-                dpp_list.append(dpp_timer_start - dpp_timer_end)
+                dpp_list.append(dpp_timer_end - dpp_timer_start)
 
                 # Store new last ack
                 if ack_seq == base + 1: # len(payload)
